@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-white10: rgba(255, 255, 255, 0.1);
+  --color-white20: rgba(255, 255, 255, 0.2);
+  --color-white30: rgba(255, 255, 255, 0.3);
+  --color-etoos-navy: #192135;
+  --color-etoos-blue: #005bac;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
