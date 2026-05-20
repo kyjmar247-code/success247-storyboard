@@ -1,16 +1,8 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Quote, School, Hash, ArrowRight, Calendar } from 'lucide-react';
 import reviewsData from './data/reviews.json';
 
-// 동적 태그 생성 (학생 유형 + 코칭 주제)
-const allTags = new Set();
-reviewsData.forEach(r => {
-  if (r.studentType) allTags.add(r.studentType);
-  if (r.coachingTitle) allTags.add(r.coachingTitle);
-  if (r.learningTitle) allTags.add(r.learningTitle);
-});
-const TAGS = Array.from(allTags).filter(Boolean);
 
 // 숫자 애니메이션 훅
 function useCounter(end, duration = 2000) {
@@ -68,7 +60,7 @@ const getPostitStyle = (id) => {
 export default function App() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [query, setQuery] = useState('');
-  const [data, setData] = useState(reviewsData);
+  const data = reviewsData;
   const totalReviewsCount = useCounter(data.length, 2500);
 
   // 다양해진 수기 내용에 맞춘 핵심 키워드 리스트
@@ -112,12 +104,12 @@ export default function App() {
       if (selectedTags.length > 0) {
         matchTags = selectedTags.some(tag => {
           const text = searchContent;
-          const keyword = tag.replace(' ', '');
+          const keyword = tag.replace(' ', '').toLowerCase();
           const rawText = text.replace(/\s+/g, '');
           if (rawText.includes(keyword)) return true;
           if (keyword.length > 2) {
              const subWords = tag.split(' ');
-             return subWords.some(w => w.length >= 2 && rawText.includes(w));
+             return subWords.some(w => w.length >= 2 && rawText.includes(w.toLowerCase()));
           }
           return false;
         });
@@ -147,7 +139,7 @@ export default function App() {
             <div className="absolute -top-4 left-1/2 h-8 w-32 -translate-x-1/2 -rotate-3 bg-white/60 backdrop-blur-sm shadow-sm opacity-90" style={{ clipPath: 'polygon(3% 0%, 97% 0%, 100% 100%, 0% 100%)' }}></div>
             
             <span className="inline-block transform -rotate-2 bg-[#fef3c7] px-4 py-1.5 text-sm font-bold tracking-wide text-amber-800 shadow-sm mb-8">
-              #2026학년도 #재원생_리얼후기
+              #2026학년도 #재원생_리얼후기 #총_{totalReviewsCount}개의_기록
             </span>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl lg:text-6xl text-balance leading-[1.3]">
               나의 247 라이프
@@ -189,7 +181,7 @@ export default function App() {
               <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {TAGS.map(tag => (
+              {availableTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
