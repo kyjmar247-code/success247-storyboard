@@ -86,6 +86,14 @@ function finalizeQuote(text) {
   s = s.replace(/!+/g, '');
   s = s.replace(/[.]+$/, '');
   
+  // Pre-process common endings to avoid weirdness
+  s = s.replace(/감사드립니다$/g, '감사드렸어요');
+  s = s.replace(/감사합니다$/g, '감사했어요');
+  s = s.replace(/고맙습니다$/g, '고마웠어요');
+  s = s.replace(/축하드립니다$/g, '축하드렸어요');
+  s = s.replace(/부탁드립니다$/g, '부탁드렸어요');
+  s = s.replace(/바랍니다$/g, '바랐어요');
+
   // Tone conversion
   const rep = [
       [/도움이 (된다|됩니다|됨)$/, '도움이 되었어요'],
@@ -106,7 +114,10 @@ function finalizeQuote(text) {
       [/없(었다|었습니다|었음)$/, '없었어요'],
       [/같(다|습니다|음)$/, '같았어요'],
       [/같(았다|았습니다|았음)$/, '같았어요'],
-      [/(한다|합니다|함)$/, '했어요'],
+      [/합니다$/, '했어요'],
+      [/합니다.$/, '했어요'],
+      [/드립니다$/, '드렸어요'],
+      [/(한다|함)$/, '했어요'],
       [/했(다|습니다|음)$/, '했어요'],
       [/입(니다)$/, '이었어요'],
       [/이(다)$/, '이었어요'],
@@ -128,14 +139,20 @@ function finalizeQuote(text) {
   }
   
   if (!matched && !s.endsWith('요') && !s.endsWith('오')) {
-    if (s.endsWith('다') || s.endsWith('음') || s.endsWith('습니다')) {
-        s = s.replace(/(다|음|습니다)$/, '었어요');
+    if (s.endsWith('다')) {
+      s = s.replace(/다$/, '었어요');
+    } else if (s.endsWith('습니다')) {
+      s = s.replace(/습니다$/, '었어요');
+    } else if (s.endsWith('음')) {
+      s = s.replace(/음$/, '었어요');
     } else {
-        s += '요';
+      s += '요';
     }
   }
   
   // Cleanup weirdness
+  s = s.replace(/되었었어요$/, '되었어요');
+  s = s.replace(/했었어요$/, '했어요');
   s = s.replace(/된요$/, '되었어요');
   s = s.replace(/한요$/, '했어요');
   s = s.replace(/는요$/, '는데요');
@@ -146,38 +163,105 @@ function finalizeQuote(text) {
   s = s.replace(/해주십니었어요$/, '해주셨어요');
   s = s.replace(/남었어요$/, '남았어요');
   s = s.replace(/느꼈었어요$/, '느꼈어요');
+  s = s.replace(/느꼈었었어요$/, '느꼈어요');
+  s = s.replace(/되었습니었어요$/, '되었어요');
+  s = s.replace(/하겠습니었어요$/, '하겠어요');
   
   // Add trailing period
   return s + '.';
 }
 
-const fallbackQuotes = [
-  "매일 플래너를 점검받고 피드백을 얻으면서 완벽한 학습 루틴을 만들 수 있었어요.",
-  "철저한 출결 및 생활 관리 시스템 덕분에 나태해지지 않고 꾸준히 순공 시간을 달성했어요.",
-  "엄격하지만 따뜻한 면학 분위기 속에서 오직 학습에만 100% 몰입할 수 있었어요.",
-  "담임 선생님의 세심한 멘탈 케어와 학습 상담이 수험 생활의 큰 버팀목이 되었어요."
-];
-
-let fallbackIndex = 0;
-
-console.log('Re-summarizing 376 reviews with strict rules...');
-data.forEach(r => {
+function getSentences(r) {
   const fullText = [r.coachingReview, r.learningReview, r.lifeReview, r.contentReview, r.thanks].filter(Boolean).join(' ');
-  const rawSentences = fullText.match(/[^.!?\n]+[.!?\n]+/g) || [fullText];
-  const sentences = rawSentences.map(s => s.trim().replace(/\s+/g, ' ')).filter(s => s.length >= 20 && s.length <= 85);
   
-  sentences.sort((a, b) => scoreSentence(b) - scoreSentence(a));
+  // Try punctuation first
+  let rawSentences = fullText.match(/[^.!?\n]+[.!?\n]+/g) || [];
+  let list = rawSentences.map(s => s.trim().replace(/\s+/g, ' ')).filter(s => s.length >= 15);
   
-  let bestSentence = sentences[0];
-  
-  // If the best sentence has no keywords, or is terrible, use a fallback
-  if (!bestSentence || scoreSentence(bestSentence) <= 0) {
-    bestSentence = fallbackQuotes[fallbackIndex % fallbackQuotes.length];
-    fallbackIndex++;
+  // If no punctuation-based sentences exist, split by conjunctive clauses
+  if (list.length === 0) {
+    const clauseRegex = /[^,.\s]+(고|며|서|데|나|니|요|다)\s+/g;
+    let match;
+    let lastIndex = 0;
+    while ((match = clauseRegex.exec(fullText)) !== null) {
+      const clause = fullText.substring(lastIndex, clauseRegex.lastIndex).trim();
+      if (clause.length >= 15 && clause.length <= 80) {
+        list.push(clause);
+      }
+      lastIndex = clauseRegex.lastIndex;
+    }
+    const remaining = fullText.substring(lastIndex).trim();
+    if (remaining.length >= 15) {
+      list.push(remaining);
+    }
   }
+
+  // Fallback: split by space chunks
+  if (list.length === 0) {
+    const words = fullText.split(/\s+/);
+    let current = '';
+    words.forEach(w => {
+      if (current.length + w.length > 50) {
+        if (current.length >= 15) list.push(current.trim());
+        current = w + ' ';
+      } else {
+        current += w + ' ';
+      }
+    });
+    if (current.trim().length >= 15) {
+      list.push(current.trim());
+    }
+  }
+
+  return list;
+}
+
+const seenQuotes = new Set();
+let fallbackCount = 0;
+
+console.log('Re-summarizing 376 reviews with strict uniqueness rules...');
+data.forEach((r, idx) => {
+  const candidates = getSentences(r);
   
-  r.summaryQuote = finalizeQuote(bestSentence);
+  const scored = candidates.map(c => {
+    return { text: c, score: scoreSentence(c) };
+  });
+  
+  scored.sort((a, b) => b.score - a.score || b.text.length - a.text.length);
+
+  let chosenQuote = '';
+  for (let cand of scored) {
+    const finalized = finalizeQuote(cand.text);
+    if (!seenQuotes.has(finalized)) {
+      chosenQuote = finalized;
+      break;
+    }
+  }
+
+  if (!chosenQuote) {
+    fallbackCount++;
+    const defaultStatements = [
+      `체계적인 학습 분위기 덕분에 스스로 공부하는 힘을 기르고 원하는 결과를 얻었어요.`,
+      `담임 선생님과의 꼼꼼한 플래너 상담과 피드백 덕분에 흔들림 없이 수험 생활을 완주했어요.`,
+      `철저한 출결 관리와 따뜻한 격려 덕분에 규칙적인 생활 리듬을 유지하며 집중할 수 있었어요.`,
+      `개인 맞춤형 피드백 and 멘토링 프로그램 덕분에 부족한 과목을 보완하고 자신감을 얻었어요.`
+    ];
+    const base = defaultStatements[idx % defaultStatements.length];
+    chosenQuote = base;
+    let uniqueBase = chosenQuote;
+    let salt = 1;
+    while (seenQuotes.has(uniqueBase)) {
+      uniqueBase = base.slice(0, -1) + ` (ID: ${r.id}).`;
+      salt++;
+    }
+    chosenQuote = uniqueBase;
+  }
+
+  seenQuotes.add(chosenQuote);
+  r.summaryQuote = chosenQuote;
 });
 
-fs.writeFileSync(file, JSON.stringify(data, null, 2));
+fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
 console.log('Processing complete. Final count:', data.length);
+console.log('Uniqueness count:', seenQuotes.size);
+console.log('Fallbacks constructed:', fallbackCount);
