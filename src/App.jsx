@@ -84,6 +84,8 @@ export default function App() {
       if (review.satisfaction <= 50) return null;
 
       const q = query.trim().toLowerCase();
+      // '지점', '점', '학원', '이투스247' 등 검색 시 흔히 붙는 접미사 제거하여 정확도 상향
+      const normalizedQ = q.replace(/(지점|점|학원|이투스247|기숙)\s*$/g, '').trim() || q;
       
       const searchContent = [
         review.name, 
@@ -101,7 +103,12 @@ export default function App() {
         review.summaryQuote
       ].filter(Boolean).join(' ').toLowerCase();
       
-      const matchQuery = q === '' || searchContent.includes(q);
+      // 검색어가 빈 문자열이면 통과
+      // 지점명에 정규화된 검색어가 포함되어 있거나, 전체 내용에 원본/정규화 검색어가 포함되어 있는지 확인
+      const matchQuery = q === '' || 
+        (review.branch && review.branch.toLowerCase().includes(normalizedQ)) ||
+        searchContent.includes(normalizedQ) ||
+        searchContent.includes(q);
 
       // 태그 필터 (오직 J열 요약문구만 기반으로 매칭)
       let matchTags = true;
