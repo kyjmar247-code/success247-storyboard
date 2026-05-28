@@ -66,7 +66,7 @@ export default function App() {
   // 다양해진 수기 내용에 맞춘 핵심 키워드 리스트
   const availableTags = [
     '학습 상담', '입시 상담', '질의응답', '면학 분위기', '플래너', 
-    '졸음 관리', '기기 통제', '핸드폰 수거', '방화벽', '인강 추천', 
+    '졸음 관리', '교재', '핸드폰 수거', '방화벽', '인강 추천', 
     '성적', '모의고사', '일일테스트', '집중', '학습 루틴', '이투스 구독'
   ];
 
@@ -109,7 +109,7 @@ export default function App() {
           if (rawText.includes(keyword)) return true;
           if (keyword.length > 2) {
              const subWords = tag.split(' ');
-             return subWords.some(w => w.length >= 2 && rawText.includes(w.toLowerCase()));
+             return subWords.every(w => rawText.includes(w.toLowerCase()));
           }
           return false;
         });
