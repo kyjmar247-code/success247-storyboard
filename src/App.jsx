@@ -131,47 +131,6 @@ export default function App() {
     }).filter(r => r !== null && r._matchTags && r._matchQuery);
   }, [selectedTags, query, data]);
 
-  // 동적으로 연관된 문장 찾기
-  const getRelevantQuote = (review) => {
-    if (!review._matchedKeyword) return review.summaryQuote;
-    const keyword = review._matchedKeyword;
-    
-    // 만약 요약문구에 이미 키워드가 있다면 우선 사용
-    if (review.summaryQuote.replace(/\s+/g, '').toLowerCase().includes(keyword)) {
-      return review.summaryQuote;
-    }
-
-    const fields = [
-      { title: review.coachingTitle, content: review.coachingReview },
-      { title: review.learningTitle, content: review.learningReview },
-      { title: review.lifeTitle, content: review.lifeReview },
-      { title: review.contentTitle, content: review.contentReview }
-    ];
-
-    for (let field of fields) {
-      if (!field.content) continue;
-      const rawTitle = (field.title || '').replace(/\s+/g, '').toLowerCase();
-      const rawContent = field.content.replace(/\s+/g, '').toLowerCase();
-      
-      if (rawTitle.includes(keyword) || rawContent.includes(keyword)) {
-        const sentences = field.content.match(/[^.!?\n~]+[.!?\n~]+/g) || [field.content];
-        const matchedSentence = sentences.find(s => s.replace(/\s+/g, '').toLowerCase().includes(keyword));
-        
-        let s = (matchedSentence || sentences[0]).trim();
-        s = s.replace(/^[^\w가-힣]+/, '').trim(); // Remove leading punctuation
-        // 자연스럽게 '요'체로 변환 시도
-        if (s.endsWith('다') || s.endsWith('음') || s.endsWith('습니다')) {
-          s = s.replace(/(다|음|습니다)$/, '었어요');
-        } else if (!s.endsWith('요') && !s.endsWith('오') && !s.endsWith('.')) {
-          s += '요';
-        }
-        if (!s.endsWith('.')) s += '.';
-        return s;
-      }
-    }
-    return review.summaryQuote;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-slate-900 selection:bg-etoos-blue selection:text-white">
       
@@ -306,7 +265,7 @@ export default function App() {
                 {/* 인용구 (자연스러운 줄바꿈) */}
                 <h3 className="mb-6 text-[1.05rem] font-medium leading-loose text-slate-800 break-keep text-balance">
                   <span className="text-etoos-blue mr-1 font-serif text-xl">"</span>
-                  {getRelevantQuote(review)}
+                  {Array.isArray(review.summaryQuote) ? review.summaryQuote.join(' ') : review.summaryQuote}
                   <span className="text-etoos-blue ml-1 font-serif text-xl">"</span>
                 </h3>
                 
