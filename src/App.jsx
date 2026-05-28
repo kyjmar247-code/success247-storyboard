@@ -104,11 +104,17 @@ export default function App() {
       ].filter(Boolean).join(' ').toLowerCase();
       
       // 검색어가 빈 문자열이면 통과
-      // 지점명에 정규화된 검색어가 포함되어 있거나, 전체 내용에 원본/정규화 검색어가 포함되어 있는지 확인
-      const matchQuery = q === '' || 
-        (review.branch && review.branch.toLowerCase().includes(normalizedQ)) ||
-        searchContent.includes(normalizedQ) ||
-        searchContent.includes(q);
+      let matchQuery = false;
+      if (q === '') {
+        matchQuery = true;
+      } else if (normalizedQ === '대치') {
+        // "대치" 검색 시 오직 "강남" 지점의 리뷰만 노출
+        matchQuery = review.branch === '강남';
+      } else {
+        matchQuery = (review.branch && review.branch.toLowerCase().includes(normalizedQ)) ||
+                     searchContent.includes(normalizedQ) ||
+                     searchContent.includes(q);
+      }
 
       // 태그 필터 (오직 J열 요약문구만 기반으로 매칭)
       let matchTags = true;
