@@ -94,30 +94,83 @@ export default function App() {
         review.lifeTitle,
         review.contentTitle,
         review.coachingReview,
-        review.thanks
+        review.learningReview,
+        review.lifeReview,
+        review.contentReview,
+        review.thanks,
+        review.summaryQuote
       ].filter(Boolean).join(' ').toLowerCase();
 
       const matchQuery = q === '' || searchContent.includes(q);
 
       // 태그 필터 (태그 배열 중 하나라도 포함하는지)
       let matchTags = true;
+      let matchedKeyword = null;
       if (selectedTags.length > 0) {
         matchTags = selectedTags.some(tag => {
           const text = searchContent;
-          const keyword = tag.replace(' ', '').toLowerCase();
+          const keyword = tag.replace(/\s+/g, '').toLowerCase();
           const rawText = text.replace(/\s+/g, '');
-          if (rawText.includes(keyword)) return true;
+          if (rawText.includes(keyword)) {
+            matchedKeyword = keyword;
+            return true;
+          }
           if (keyword.length > 2) {
              const subWords = tag.split(' ');
-             return subWords.every(w => rawText.includes(w.toLowerCase()));
+             const isMatch = subWords.every(w => rawText.includes(w.toLowerCase()));
+             if (isMatch) {
+               matchedKeyword = keyword;
+               return true;
+             }
           }
           return false;
         });
       }
 
-      return matchTags && matchQuery;
-    });
+      return { ...review, _matchTags: matchTags, _matchQuery: matchQuery, _matchedKeyword: matchedKeyword };
+    }).filter(r => r._matchTags && r._matchQuery);
   }, [selectedTags, query, data]);
+
+  // 동적으로 연관된 문장 찾기
+  const getRelevantQuote = (review) => {
+    if (!review._matchedKeyword) return review.summaryQuote;
+    const keyword = review._matchedKeyword;
+    
+    // 만약 요약문구에 이미 키워드가 있다면 우선 사용
+    if (review.summaryQuote.replace(/\s+/g, '').toLowerCase().includes(keyword)) {
+      return review.summaryQuote;
+    }
+
+    const fields = [
+      { title: review.coachingTitle, content: review.coachingReview },
+      { title: review.learningTitle, content: review.learningReview },
+      { title: review.lifeTitle, content: review.lifeReview },
+      { title: review.contentTitle, content: review.contentReview }
+    ];
+
+    for (let field of fields) {
+      if (!field.content) continue;
+      const rawTitle = (field.title || '').replace(/\s+/g, '').toLowerCase();
+      const rawContent = field.content.replace(/\s+/g, '').toLowerCase();
+      
+      if (rawTitle.includes(keyword) || rawContent.includes(keyword)) {
+        const sentences = field.content.match(/[^.!?\n~]+[.!?\n~]+/g) || [field.content];
+        const matchedSentence = sentences.find(s => s.replace(/\s+/g, '').toLowerCase().includes(keyword));
+        
+        let s = (matchedSentence || sentences[0]).trim();
+        s = s.replace(/^[^\w가-힣]+/, '').trim(); // Remove leading punctuation
+        // 자연스럽게 '요'체로 변환 시도
+        if (s.endsWith('다') || s.endsWith('음') || s.endsWith('습니다')) {
+          s = s.replace(/(다|음|습니다)$/, '었어요');
+        } else if (!s.endsWith('요') && !s.endsWith('오') && !s.endsWith('.')) {
+          s += '요';
+        }
+        if (!s.endsWith('.')) s += '.';
+        return s;
+      }
+    }
+    return review.summaryQuote;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-slate-900 selection:bg-etoos-blue selection:text-white">
@@ -253,7 +306,7 @@ export default function App() {
                 {/* 인용구 (자연스러운 줄바꿈) */}
                 <h3 className="mb-6 text-[1.05rem] font-medium leading-loose text-slate-800 break-keep text-balance">
                   <span className="text-etoos-blue mr-1 font-serif text-xl">"</span>
-                  {Array.isArray(review.summaryQuote) ? review.summaryQuote.join(' ') : review.summaryQuote}
+                  {getRelevantQuote(review)}
                   <span className="text-etoos-blue ml-1 font-serif text-xl">"</span>
                 </h3>
                 
