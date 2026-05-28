@@ -87,22 +87,6 @@ export default function App() {
       // '지점', '점', '학원', '이투스247' 등 검색 시 흔히 붙는 접미사 제거하여 정확도 상향
       const normalizedQ = q.replace(/(지점|점|학원|이투스247|기숙)\s*$/g, '').trim() || q;
       
-      const searchContent = [
-        review.name, 
-        review.branch, 
-        review.studentType,
-        review.coachingTitle,
-        review.learningTitle,
-        review.lifeTitle,
-        review.contentTitle,
-        review.coachingReview,
-        review.learningReview,
-        review.lifeReview,
-        review.contentReview,
-        review.thanks,
-        review.summaryQuote
-      ].filter(Boolean).join(' ').toLowerCase();
-      
       // 검색어가 빈 문자열이면 통과
       let matchQuery = false;
       if (q === '') {
@@ -111,9 +95,8 @@ export default function App() {
         // "대치" 검색 시 오직 "강남" 지점의 리뷰만 노출
         matchQuery = review.branch === '강남';
       } else {
-        matchQuery = (review.branch && review.branch.toLowerCase().includes(normalizedQ)) ||
-                     searchContent.includes(normalizedQ) ||
-                     searchContent.includes(q);
+        // 사용자의 요청에 따라 본문(글 내용)은 무시하고 오직 지점명(branch)만으로 검색
+        matchQuery = Boolean(review.branch && review.branch.toLowerCase().includes(normalizedQ));
       }
 
       // 태그 필터 (오직 J열 요약문구만 기반으로 매칭)
