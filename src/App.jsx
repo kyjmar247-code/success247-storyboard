@@ -270,14 +270,53 @@ export default function App() {
                   )}
                 </div>
 
-                {/* 인용구 (자연스러운 줄바꿈) */}
-                <h3 className="mb-6 text-[1.05rem] font-medium leading-loose text-slate-800 break-keep text-balance">
+                {/* 인용구 (자연스러운 줄바꿈) - 사용자가 수정한 J열 내용 (고정) */}
+                <h3 className="mb-4 text-[1.05rem] font-medium leading-loose text-slate-800 break-keep text-balance">
                   <span className="text-etoos-blue mr-1 font-serif text-xl">"</span>
                   {Array.isArray(review.summaryQuote) ? review.summaryQuote.join(' ') : review.summaryQuote}
                   <span className="text-etoos-blue ml-1 font-serif text-xl">"</span>
                 </h3>
+
+                {/* 태그 검색 시 해당 태그와 관련된 원문 코멘트 추가 노출 */}
+                {review._matchedKeyword && (() => {
+                  const keyword = review._matchedKeyword;
+                  if ((Array.isArray(review.summaryQuote) ? review.summaryQuote.join(' ') : review.summaryQuote).replace(/\s+/g, '').toLowerCase().includes(keyword)) return null;
+
+                  const fields = [
+                    { title: review.coachingTitle, content: review.coachingReview },
+                    { title: review.learningTitle, content: review.learningReview },
+                    { title: review.lifeTitle, content: review.lifeReview },
+                    { title: review.contentTitle, content: review.contentReview }
+                  ];
+
+                  for (let field of fields) {
+                    if (!field.content) continue;
+                    const rawTitle = (field.title || '').replace(/\s+/g, '').toLowerCase();
+                    const rawContent = field.content.replace(/\s+/g, '').toLowerCase();
+                    
+                    if (rawTitle.includes(keyword) || rawContent.includes(keyword)) {
+                      const sentences = field.content.match(/[^.!?\n~]+[.!?\n~]+/g) || [field.content];
+                      let s = (sentences.find(s => s.replace(/\s+/g, '').toLowerCase().includes(keyword)) || sentences[0]).trim();
+                      s = s.replace(/^[^\w가-힣]+/, '').trim();
+                      if (s.endsWith('다') || s.endsWith('음') || s.endsWith('습니다')) {
+                        s = s.replace(/(다|음|습니다)$/, '었어요');
+                      } else if (!s.endsWith('요') && !s.endsWith('오') && !s.endsWith('.')) {
+                        s += '요';
+                      }
+                      if (!s.endsWith('.')) s += '.';
+                      
+                      return (
+                        <div className="mt-4 bg-blue-50/50 p-3 rounded-lg border border-blue-100 text-[0.9rem] text-slate-600 leading-relaxed break-keep">
+                          <strong className="text-etoos-blue block mb-1">#{keyword} 관련 코멘트</strong>
+                          {s}
+                        </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
                 
-                {/* 하단 유저 정보 */}
+                {/* 하단 작성자 정보 영역 (이름, 지점 등) */}
                 <div className="flex items-center justify-between border-t border-black/5 pt-5">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/50 text-slate-500 shadow-sm">
