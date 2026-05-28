@@ -65,7 +65,7 @@ export default function App() {
 
   // 평가 항목 17가지를 직관적으로 그룹화한 핵심 키워드 리스트
   const availableTags = [
-    '학습 상담', '입시 상담', '학습 계획', '플래너 관리', 
+    '학습 관리', '입시 관리', '학습 계획', '플래너 관리', 
     '질의응답', '인강 추천', '생활 관리', '면학 분위기', 
     '졸음 관리', '방화벽', '모의고사', '이투스 구독'
   ];
@@ -113,6 +113,12 @@ export default function App() {
             return true;
           }
           if (keyword === '학습계획' && rawText.includes('매리트')) {
+            return true;
+          }
+          if (keyword === '학습관리' && rawText.includes('학습상담')) {
+            return true;
+          }
+          if (keyword === '입시관리' && rawText.includes('입시상담')) {
             return true;
           }
           
