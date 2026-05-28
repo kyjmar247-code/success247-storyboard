@@ -63,11 +63,11 @@ export default function App() {
   const data = reviewsData;
   const totalReviewsCount = useCounter(data.length, 2500);
 
-  // 다양해진 수기 내용에 맞춘 핵심 키워드 리스트
+  // 평가 항목 17가지를 직관적으로 그룹화한 핵심 키워드 리스트
   const availableTags = [
-    '학습 상담', '입시 상담', '질의응답', '면학 분위기', '플래너', 
-    '졸음 관리', '교재', '핸드폰 수거', '방화벽', '인강 추천', 
-    '성적', '모의고사', '매리트', '집중', '학습 루틴', '이투스 구독'
+    '학습 상담', '입시 상담', '생활 상담', '학습 계획', '플래너 관리', 
+    '질의응답', '인강 추천', '전자 출결', '핸드폰 수거', '면학 분위기', 
+    '졸음 관리', '방화벽', 'VOCA', '매리트', '모의고사', '이투스 구독'
   ];
 
   // 태그 선택 토글 (단일 선택)
@@ -101,14 +101,22 @@ export default function App() {
         review.summaryQuote
       ].filter(Boolean).join(' ').toLowerCase();
 
+      // 태그 전용 검색 영역 (본문을 제외한 평가 항목 타이틀만)
+      const tagSearchContent = [
+        review.coachingTitle,
+        review.learningTitle,
+        review.lifeTitle,
+        review.contentTitle
+      ].filter(Boolean).join(' ').toLowerCase();
+
       const matchQuery = q === '' || searchContent.includes(q);
 
-      // 태그 필터 (태그 배열 중 하나라도 포함하는지)
+      // 태그 필터 (오직 평가 항목만 기반으로 완벽 매칭)
       let matchTags = true;
       let matchedKeyword = null;
       if (selectedTags.length > 0) {
         matchTags = selectedTags.some(tag => {
-          const text = searchContent;
+          const text = tagSearchContent;
           const keyword = tag.replace(/\s+/g, '').toLowerCase();
           const rawText = text.replace(/\s+/g, '');
           if (rawText.includes(keyword)) {
