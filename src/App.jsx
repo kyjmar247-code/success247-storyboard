@@ -100,6 +100,8 @@ export default function App() {
         review.thanks,
         review.summaryQuote
       ].filter(Boolean).join(' ').toLowerCase();
+      
+      const matchQuery = q === '' || searchContent.includes(q);
 
       // 태그 필터 (오직 J열 요약문구만 기반으로 매칭)
       let matchTags = true;
