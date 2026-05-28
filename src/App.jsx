@@ -65,8 +65,8 @@ export default function App() {
 
   // 평가 항목 17가지를 직관적으로 그룹화한 핵심 키워드 리스트
   const availableTags = [
-    '학습 상담', '입시 상담', '생활 상담', '학습 계획', '플래너 관리', 
-    '질의응답', '인강 추천', '전자 출결', '핸드폰 수거', '면학 분위기', 
+    '학습 상담', '입시 상담', '학습 계획', '플래너 관리', 
+    '질의응답', '인강 추천', '생활 관리', '면학 분위기', 
     '졸음 관리', '방화벽', '매리트', '모의고사', '이투스 구독'
   ];
 
@@ -125,6 +125,10 @@ export default function App() {
           const rawText = text.replace(/\s+/g, '');
           
           if (rawText.includes(keyword)) return true;
+          
+          if (keyword === '생활관리' && (rawText.includes('생활상담') || rawText.includes('전자출결') || rawText.includes('핸드폰수거'))) {
+            return true;
+          }
           
           if (keyword.length > 2) {
              const subWords = tag.split(' ');
