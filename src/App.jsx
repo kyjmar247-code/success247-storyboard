@@ -122,12 +122,6 @@ export default function App() {
             return true;
           }
           
-          if (keyword.length > 2) {
-             const subWords = tag.split(' ');
-             if (subWords.every(w => rawText.includes(w.toLowerCase()))) {
-               return true;
-             }
-          }
           return false;
         });
       }
