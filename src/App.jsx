@@ -67,7 +67,7 @@ export default function App() {
   const availableTags = [
     '학습 상담', '입시 상담', '학습 계획', '플래너 관리', 
     '질의응답', '인강 추천', '생활 관리', '면학 분위기', 
-    '졸음 관리', '방화벽', '매리트', '모의고사', '이투스 구독'
+    '졸음 관리', '방화벽', '모의고사', '이투스 구독'
   ];
 
   // 태그 선택 토글 (단일 선택)
@@ -127,6 +127,9 @@ export default function App() {
           if (rawText.includes(keyword)) return true;
           
           if (keyword === '생활관리' && (rawText.includes('생활상담') || rawText.includes('전자출결') || rawText.includes('핸드폰수거'))) {
+            return true;
+          }
+          if (keyword === '학습계획' && rawText.includes('매리트')) {
             return true;
           }
           
