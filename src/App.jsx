@@ -70,10 +70,10 @@ export default function App() {
     '성적', '모의고사', '매리트', '집중', '학습 루틴', '이투스 구독'
   ];
 
-  // 태그 선택 토글
+  // 태그 선택 토글 (단일 선택)
   const toggleTag = (tag) => {
     setSelectedTags(prev => 
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+      prev.includes(tag) ? [] : [tag]
     );
   };
 
