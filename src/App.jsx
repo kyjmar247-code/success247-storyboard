@@ -79,9 +79,9 @@ export default function App() {
 
   // 필터링 로직
   const filteredReviews = useMemo(() => {
-    return data.filter((review) => {
+    return data.map((review) => {
       // 만족도 50% 이하 리뷰는 성공 스토리에 어울리지 않으므로 아예 노출 제외
-      if (review.satisfaction <= 50) return false;
+      if (review.satisfaction <= 50) return null;
 
       const q = query.trim().toLowerCase();
       
@@ -128,7 +128,7 @@ export default function App() {
       }
 
       return { ...review, _matchTags: matchTags, _matchQuery: matchQuery, _matchedKeyword: matchedKeyword };
-    }).filter(r => r._matchTags && r._matchQuery);
+    }).filter(r => r !== null && r._matchTags && r._matchQuery);
   }, [selectedTags, query, data]);
 
   // 동적으로 연관된 문장 찾기
