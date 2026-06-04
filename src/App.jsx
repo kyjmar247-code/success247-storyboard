@@ -182,17 +182,17 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           
           {/* 태그 클라우드 */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <Hash className="w-5 h-5 text-etoos-blue" />
               <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {availableTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
+                  className={`flex-none whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
                     selectedTags.includes(tag)
                       ? 'bg-etoos-blue text-white shadow-md scale-105'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -205,7 +205,7 @@ export default function App() {
           </div>
 
           {/* 검색창 */}
-          <div className="w-full md:w-80 flex-shrink-0">
+          <div className="w-full md:w-64 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
