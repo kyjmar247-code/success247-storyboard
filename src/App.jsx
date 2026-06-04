@@ -65,9 +65,8 @@ export default function App() {
 
   // 평가 항목 17가지를 직관적으로 그룹화한 핵심 키워드 리스트
   const availableTags = [
-    '학습 관리', '입시 관리', '학습 계획', '플래너 관리', 
-    '질의응답', '인강 추천', '생활 관리', '면학 분위기', 
-    '졸음 관리', '방화벽', '모의고사', '이투스 구독'
+    '학습·입시 관리', '학습 계획', '플래너 관리', '질의응답', 
+    '생활 관리', '면학 분위기', '졸음 관리', '모의고사'
   ];
 
   // 태그 선택 토글 (단일 선택)
@@ -109,16 +108,13 @@ export default function App() {
           
           if (rawText.includes(keyword)) return true;
           
-          if (keyword === '생활관리' && (rawText.includes('생활상담') || rawText.includes('전자출결') || rawText.includes('핸드폰수거'))) {
+          if (keyword === '생활관리' && (rawText.includes('생활상담') || rawText.includes('전자출결') || rawText.includes('핸드폰수거') || rawText.includes('방화벽'))) {
             return true;
           }
           if (keyword === '학습계획' && rawText.includes('매리트')) {
             return true;
           }
-          if (keyword === '학습관리' && rawText.includes('학습상담')) {
-            return true;
-          }
-          if (keyword === '입시관리' && rawText.includes('입시상담')) {
+          if (keyword === '학습·입시관리' && (rawText.includes('학습관리') || rawText.includes('학습상담') || rawText.includes('입시관리') || rawText.includes('입시상담') || rawText.includes('인강추천') || rawText.includes('이투스구독'))) {
             return true;
           }
           
