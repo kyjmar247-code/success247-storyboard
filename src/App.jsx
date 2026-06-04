@@ -65,8 +65,8 @@ export default function App() {
 
   // 평가 항목 17가지를 직관적으로 그룹화한 핵심 키워드 리스트
   const availableTags = [
-    '학습·입시 관리', '학습 계획', '플래너 관리', '질의응답', 
-    '생활 관리', '면학 분위기', '졸음 관리', '모의고사'
+    '학습 계획 및 관리', '1:1 질의응답 및 상담', '모의고사 및 성적 분석', 
+    '학습 환경 및 전자기기 통제', '동기부여 및 생활 관리', '담임 선생님'
   ];
 
   // 태그 선택 토글 (단일 선택)
@@ -98,28 +98,10 @@ export default function App() {
         matchQuery = Boolean(review.branch && review.branch.toLowerCase().includes(normalizedQ));
       }
 
-      // 태그 필터 (오직 J열 요약문구만 기반으로 매칭)
+      // 태그 필터 (review.tags 배열 기반 매칭)
       let matchTags = true;
       if (selectedTags.length > 0) {
-        matchTags = selectedTags.some(tag => {
-          const text = (Array.isArray(review.summaryQuote) ? review.summaryQuote.join(' ') : review.summaryQuote).toLowerCase();
-          const keyword = tag.replace(/\s+/g, '').toLowerCase();
-          const rawText = text.replace(/\s+/g, '');
-          
-          if (rawText.includes(keyword)) return true;
-          
-          if (keyword === '생활관리' && (rawText.includes('생활상담') || rawText.includes('전자출결') || rawText.includes('핸드폰수거') || rawText.includes('방화벽'))) {
-            return true;
-          }
-          if (keyword === '학습계획' && rawText.includes('매리트')) {
-            return true;
-          }
-          if (keyword === '학습·입시관리' && (rawText.includes('학습관리') || rawText.includes('학습상담') || rawText.includes('입시관리') || rawText.includes('입시상담') || rawText.includes('인강추천') || rawText.includes('이투스구독'))) {
-            return true;
-          }
-          
-          return false;
-        });
+        matchTags = selectedTags.some(tag => review.tags && review.tags.includes(tag));
       }
 
       return { ...review, _matchTags: matchTags, _matchQuery: matchQuery };
@@ -148,65 +130,29 @@ export default function App() {
             <span className="inline-block transform -rotate-2 bg-[#fef3c7] px-4 py-1.5 text-sm font-bold tracking-wide text-amber-800 shadow-sm mb-8">
               #2026학년도 #재원생_리얼후기 #총_{totalReviewsCount}개의_기록
             </span>
+            <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl text-balance mb-4 leading-relaxed font-medium">
+              치열했던 고민의 시간부터<br />
+              마침내 목표를 이룬 빛나는 순간까지,
+            </p>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl lg:text-6xl text-balance leading-[1.3]">
               나의 247 라이프
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl text-balance mt-6 leading-relaxed">
-              치열했던 고민의 시간부터 마침내 목표를 이룬 빛나는 순간까지,<br className="hidden sm:block" />
-              <span className="relative inline-block mt-2 font-medium text-slate-800">
-                선배들이 직접 기록한 생생한 학원 생활 다이어리를 펼쳐보세요.
-                <span className="absolute bottom-1 left-0 -z-10 h-3 w-full bg-[#e0f2fe] opacity-70 rounded-full"></span>
-              </span>
-            </p>
-            
-            {/* 메인 1단 내 상담 예약 CTA 버튼 */}
-            <div className="mt-8">
-              <a 
-                href="#consultation" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('consultation-cta')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center gap-2 rounded-full bg-[#16224f] px-8 py-3.5 text-sm font-extrabold text-white transition-all hover:bg-black hover:-translate-y-0.5 hover:shadow-lg active:scale-95 cursor-pointer"
-              >
-                지금 상담 예약하기
-                <ArrowRight className="h-4 w-4 text-[#fef3c7]" />
-              </a>
-            </div>
+
           </div>
         </motion.div>
       </section>
 
       {/* 2. Interactive Tag Cloud & Search */}
       <section className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur-md shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        <div className="mx-auto max-w-7xl px-4 py-6 flex flex-col items-center justify-center gap-6">
           
-          {/* 태그 클라우드 */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-3">
-              <Hash className="w-5 h-5 text-etoos-blue" />
-              <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
-            </div>
-            <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {availableTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={`flex-none whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
-                    selectedTags.includes(tag)
-                      ? 'bg-etoos-blue text-white shadow-md scale-105'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  #{tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 검색창 */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <div className="relative">
+          {/* 검색창 영역 */}
+          <div className="w-full max-w-md flex-shrink-0 flex flex-col items-center">
+            <p className="text-center text-slate-700 font-medium mb-4 text-balance leading-relaxed">
+              막막한 수험 생활의 해답,<br />
+              선배들의 리얼 후기 속에서 찾아보세요.
+            </p>
+            <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -215,6 +161,46 @@ export default function App() {
                 onChange={(e) => setQuery(e.target.value)}
                 className="h-12 w-full rounded-2xl border-none bg-slate-100 pl-12 pr-4 text-sm focus:ring-2 focus:ring-etoos-blue transition-all"
               />
+            </div>
+          </div>
+
+          {/* 태그 클라우드 */}
+          <div className="flex-1 w-full flex flex-col items-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Hash className="w-5 h-5 text-etoos-blue" />
+              <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 pb-2">
+              <div className="flex flex-wrap justify-center gap-2">
+                {availableTags.slice(0, 3).map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-etoos-blue text-white shadow-md scale-105'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {availableTags.slice(3, 6).map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-etoos-blue text-white shadow-md scale-105'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
