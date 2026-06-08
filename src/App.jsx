@@ -142,10 +142,10 @@ export default function App() {
       </section>
 
       {/* 2. Interactive Tag Cloud & Search */}
-      <section className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur-md shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-6 flex flex-col items-center justify-center gap-6">
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 pt-8 pb-4 flex flex-col items-center justify-center">
           
-          {/* 검색창 영역 */}
+          {/* 검색창 영역 (스크롤 시 올라감) */}
           <div className="w-full max-w-md flex-shrink-0 flex flex-col items-center">
             <p className="text-center text-slate-700 font-medium mb-4 text-balance leading-relaxed">
               막막한 수험 생활의 해답,<br />
@@ -161,48 +161,50 @@ export default function App() {
                 className="h-12 w-full rounded-2xl border-none bg-slate-100 pl-12 pr-4 text-sm focus:ring-2 focus:ring-etoos-blue transition-all"
               />
             </div>
-            <p className="text-xs text-slate-400 text-center w-full break-keep">
+            <p className="text-xs text-slate-400 text-center w-full break-keep mb-2">
               * 일부 신규 지점의 후기는 현재 수집 및 지속 업데이트 중입니다.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* 태그 클라우드 */}
-          <div className="flex-1 w-full flex flex-col items-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Hash className="w-5 h-5 text-etoos-blue" />
-              <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
+      {/* 태그 클라우드 (이 부분만 상단 고정) */}
+      <section className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur-md shadow-sm py-4">
+        <div className="mx-auto max-w-7xl px-4 flex-1 w-full flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Hash className="w-5 h-5 text-etoos-blue" />
+            <span className="text-sm font-bold text-slate-700">핵심 키워드 탐색</span>
+          </div>
+          <div className="flex flex-col items-center gap-2 pb-2">
+            <div className="flex flex-wrap justify-center gap-2">
+              {availableTags.slice(0, 3).map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
+                    selectedTags.includes(tag)
+                      ? 'bg-etoos-blue text-white shadow-md scale-105'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              ))}
             </div>
-            <div className="flex flex-col items-center gap-2 pb-2">
-              <div className="flex flex-wrap justify-center gap-2">
-                {availableTags.slice(0, 3).map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
-                      selectedTags.includes(tag)
-                        ? 'bg-etoos-blue text-white shadow-md scale-105'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    #{tag}
-                  </button>
-                ))}
-              </div>
-              <div className="flex flex-wrap justify-center gap-2">
-                {availableTags.slice(3, 6).map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
-                      selectedTags.includes(tag)
-                        ? 'bg-etoos-blue text-white shadow-md scale-105'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    #{tag}
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              {availableTags.slice(3, 6).map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 ${
+                    selectedTags.includes(tag)
+                      ? 'bg-etoos-blue text-white shadow-md scale-105'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  #{tag}
+                </button>
+              ))}
             </div>
           </div>
         </div>
