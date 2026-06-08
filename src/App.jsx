@@ -151,7 +151,7 @@ export default function App() {
               막막한 수험 생활의 해답,<br />
               선배들의 리얼 후기 속에서 찾아보세요.
             </p>
-            <div className="relative w-full">
+            <div className="relative w-full mb-2">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -161,6 +161,9 @@ export default function App() {
                 className="h-12 w-full rounded-2xl border-none bg-slate-100 pl-12 pr-4 text-sm focus:ring-2 focus:ring-etoos-blue transition-all"
               />
             </div>
+            <p className="text-xs text-slate-400 text-center w-full break-keep">
+              * 일부 신규 지점의 후기는 현재 수집 및 지속 업데이트 중입니다.
+            </p>
           </div>
 
           {/* 태그 클라우드 */}
