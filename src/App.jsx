@@ -130,12 +130,11 @@ export default function App() {
             <span className="inline-block transform -rotate-2 bg-[#fef3c7] px-4 py-1.5 text-sm font-bold tracking-wide text-amber-800 shadow-sm mb-8">
               #2026학년도 #재원생_리얼후기 #총_{totalReviewsCount}개의_기록
             </span>
-            <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl text-balance mb-4 leading-relaxed font-medium">
-              치열했던 고민의 시간부터<br />
-              마침내 목표를 이룬 빛나는 순간까지,
-            </p>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-800 sm:text-5xl lg:text-6xl text-balance leading-[1.3]">
-              나의 247 라이프
+              <span className="block text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-600 mb-2">
+                이투스247학원 선배들이 말하는
+              </span>
+              진짜 247 이야기
             </h1>
 
           </div>
